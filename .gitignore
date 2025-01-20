@@ -1,5 +1,3 @@
-# client ignores
-
 # Logs
 logs
 *.log
@@ -25,6 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# environment files
+
 .env
 
