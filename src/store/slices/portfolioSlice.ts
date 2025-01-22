@@ -103,7 +103,7 @@ export const fetchPortfolio = createAsyncThunk(
         throw new Error("Authentication required");
       }
 
-      const response = await api.get("/portfolio", {
+      const response = await api.get("/api/portfolio", {
         withCredentials: true, // Ensure cookies are included
       });
 
