@@ -30,8 +30,6 @@ export const authenticateWithApiKey = createAsyncThunk(
         email: email,
       });
 
-      console.log(response);
-
       // Verify the response
       if (response?.status !== 200) {
         throw new Error(response.data?.message || "Authentication failed");

@@ -71,8 +71,6 @@ export const encryptData = async (data: string): Promise<string> => {
   const publicKeyPem = import.meta.env.VITE_PUBLIC_KEY;
 
   const api = import.meta.env.VITE_API_KEY;
-  console.log("api", api);
-  console.log("publicKeyPem", publicKeyPem);
 
   if (!publicKeyPem) {
     toast.error("Public key not found in environment variables");
@@ -103,43 +101,21 @@ export async function encryptWithPublicKey(
     const pemHeader = "-----BEGIN PUBLIC KEY-----";
     const pemFooter = "-----END PUBLIC KEY-----";
 
-    console.log("Original key:", {
-      value: publicKeyPem,
-      length: publicKeyPem.length,
-      includesHeader: publicKeyPem.includes(pemHeader),
-      includesFooter: publicKeyPem.includes(pemFooter),
-    });
-
     // Clean up the key first
     let formattedPublicKey = publicKeyPem
       .replace(/^["']|["']$/g, "") // Remove surrounding quotes
       .replace(/\\n/g, "\n") // Convert \n string to actual newlines
       .trim();
 
-    console.log("After cleanup:", {
-      value: formattedPublicKey,
-      length: formattedPublicKey.length,
-    });
-
     // Ensure public key has proper PEM format
     if (!formattedPublicKey.includes(pemHeader)) {
       formattedPublicKey = `${pemHeader}\n${formattedPublicKey}\n${pemFooter}`;
     }
 
-    console.log("After format:", {
-      value: formattedPublicKey,
-      length: formattedPublicKey.length,
-    });
-
     const pemContents = formattedPublicKey
       .replace(pemHeader, "")
       .replace(pemFooter, "")
       .replace(/[\r\n\t ]/g, "");
-
-    console.log("Final pemContents:", {
-      value: pemContents,
-      length: pemContents.length,
-    });
 
     if (!pemContents || pemContents.length === 0) {
       throw new Error("Invalid public key: empty content after formatting");

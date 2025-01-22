@@ -21,16 +21,6 @@ api.interceptors.request.use(
   (config) => {
     // Ensure credentials are always included
     config.withCredentials = true;
-
-    // Log request in development
-    if (import.meta.env.DEV) {
-      console.log("API Request:", {
-        method: config.method,
-        url: config.url,
-        headers: config.headers,
-        withCredentials: config.withCredentials,
-      });
-    }
     return config;
   },
   (error) => {
