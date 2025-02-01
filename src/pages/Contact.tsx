@@ -10,6 +10,7 @@ import { Helmet } from "react-helmet-async";
 import api from "@/lib/axios";
 import { ContactSkeleton } from "@/components/LoadingCards";
 import { fetchOwnerLocation } from "@/store/slices/contactSlice";
+import { useTheme } from "@/components/theme-provider";
 
 interface ContactFormData {
   name: string;
@@ -17,11 +18,28 @@ interface ContactFormData {
   message: string;
 }
 
+interface SocialIcon {
+  s3Link: string;
+  s3Key: string;
+}
+
+interface FeaturedSocial {
+  _id: string;
+  name: string;
+  link: string;
+  lightIcon: SocialIcon;
+  darkIcon: SocialIcon;
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const LOCATION_CACHE_KEY = "visitor_location";
 const LOCATION_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 const Contact = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { theme } = useTheme();
   const {
     featuredSocials,
     name: portfolioName,
@@ -38,6 +56,11 @@ const Contact = () => {
   });
   const [loading, setLoading] = useState(false);
   const [visitorLocation, setVisitorLocation] = useState<string>("");
+
+  // Helper function to get theme-based icon URL
+  const getThemeBasedIconUrl = (social: FeaturedSocial) => {
+    return theme === "dark" ? social.darkIcon.s3Link : social.lightIcon.s3Link;
+  };
 
   useEffect(() => {
     // Only fetch owner location if it's not already in the store
@@ -271,7 +294,7 @@ const Contact = () => {
               <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
                 <h2 className="text-xl font-semibold mb-4">Connect with Me</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {featuredSocials.map((social) => (
+                  {featuredSocials.map((social: FeaturedSocial) => (
                     <a
                       key={social._id}
                       href={social.link}
@@ -280,9 +303,15 @@ const Contact = () => {
                       className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-colors"
                     >
                       <img
-                        src={social.s3Link}
+                        src={getThemeBasedIconUrl(social)}
                         alt={social.name}
-                        className="w-8 h-8 object-contain"
+                        className="w-8 h-8 object-contain transition-all"
+                        onError={(e) => {
+                          console.error(
+                            `Error loading icon for ${social.name}:`,
+                            e
+                          );
+                        }}
                       />
                       <span className="text-sm font-medium">{social.name}</span>
                     </a>

@@ -7,7 +7,8 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
-import { useEffect, useRef } from "react";
+import NotFound from "./pages/NotFound";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { authenticateWithApiKey } from "./store/slices/authSlice";
 import { fetchPortfolio } from "./store/slices/portfolioSlice";
@@ -15,22 +16,53 @@ import type { AppDispatch, RootState } from "./store/store";
 
 function AppContent() {
   const dispatch = useDispatch<AppDispatch>();
-  const authAttemptedRef = useRef(false);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const {
+    isAuthenticated,
+    loading: authLoading,
+    error: authError,
+  } = useSelector((state: RootState) => state.auth);
+  const [authAttempted, setAuthAttempted] = useState(false);
 
+  // Handle initial authentication
   useEffect(() => {
-    if (!authAttemptedRef.current) {
-      authAttemptedRef.current = true;
-      dispatch(authenticateWithApiKey());
-    }
-  }, [dispatch]);
+    const initializeAuth = async () => {
+      if (!authAttempted) {
+        setAuthAttempted(true);
+        try {
+          await dispatch(authenticateWithApiKey()).unwrap();
+        } catch (error) {
+          console.error("Authentication failed:", error);
+        }
+      }
+    };
+
+    initializeAuth();
+  }, [dispatch, authAttempted]);
 
   // Fetch portfolio data when authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchPortfolio());
-    }
+    const fetchData = async () => {
+      if (isAuthenticated) {
+        try {
+          await dispatch(fetchPortfolio()).unwrap();
+        } catch (error) {
+          console.error("Failed to fetch portfolio data:", error);
+        }
+      }
+    };
+
+    fetchData();
   }, [dispatch, isAuthenticated]);
+
+  // Debug logs
+  useEffect(() => {
+    console.log("Auth State:", {
+      isAuthenticated,
+      authLoading,
+      authError,
+      authAttempted,
+    });
+  }, [isAuthenticated, authLoading, authError, authAttempted]);
 
   return (
     <Router>
@@ -41,6 +73,7 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>

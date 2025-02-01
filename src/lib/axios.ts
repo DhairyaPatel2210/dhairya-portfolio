@@ -9,7 +9,6 @@ if (!baseURL) {
 const api = axios.create({
   baseURL,
   timeout: 10000, // 10 second timeout
-  withCredentials: true, // Include credentials for all requests
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -19,8 +18,14 @@ const api = axios.create({
 // Add request interceptor to handle errors consistently
 api.interceptors.request.use(
   (config) => {
-    // Ensure credentials are always included
-    config.withCredentials = true;
+    // Get token from localStorage
+    const token = localStorage.getItem("token");
+
+    // If token exists, add it to the Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
   (error) => {
@@ -52,6 +57,11 @@ api.interceptors.response.use(
           cors: "CORS might be blocking the request",
           network: "Network connectivity issues",
         });
+      }
+
+      // If we get a 401 Unauthorized error, clear the token and auth state
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
       }
     }
     return Promise.reject(error);

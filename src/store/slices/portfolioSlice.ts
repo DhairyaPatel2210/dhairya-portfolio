@@ -28,6 +28,22 @@ export interface Experience {
   technologies: string[];
 }
 
+interface SocialIcon {
+  s3Link: string;
+  s3Key: string;
+}
+
+export interface FeaturedSocial {
+  _id: string;
+  name: string;
+  link: string;
+  lightIcon: SocialIcon;
+  darkIcon: SocialIcon;
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PortfolioState {
   name: string;
   about: string;
@@ -45,12 +61,7 @@ export interface PortfolioState {
     googleAnalyticsId: string;
   };
   featuredProjects: Project[];
-  featuredSocials: {
-    _id: string;
-    name: string;
-    link: string;
-    s3Link: string;
-  }[];
+  featuredSocials: FeaturedSocial[];
   resumes: {
     url: string;
     displayName: string;
@@ -103,9 +114,7 @@ export const fetchPortfolio = createAsyncThunk(
         throw new Error("Authentication required");
       }
 
-      const response = await api.get("/api/portfolio", {
-        withCredentials: true, // Ensure cookies are included
-      });
+      const response = await api.get("/api/portfolio");
 
       if (!response.data) {
         throw new Error("No data received from server");

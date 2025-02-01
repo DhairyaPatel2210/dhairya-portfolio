@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
+import { useTheme } from "@/components/theme-provider";
 import {
   fetchProjects,
   setSelectedLanguages,
@@ -24,6 +25,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Check } from "lucide-react";
 
+interface SocialIcon {
+  s3Link: string;
+  s3Key: string;
+}
+
+interface FeaturedSocial {
+  _id: string;
+  name: string;
+  link: string;
+  lightIcon: SocialIcon;
+  darkIcon: SocialIcon;
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const formatDate = (date: string) => {
   const d = new Date(date);
   return d.toLocaleDateString("en-US", {
@@ -34,6 +51,7 @@ const formatDate = (date: string) => {
 
 const Projects = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { theme } = useTheme();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const {
     projects,
@@ -102,6 +120,22 @@ const Projects = () => {
     return text.slice(0, limit) + "...";
   };
 
+  // Helper function to get theme-based icon URL
+  const getThemeBasedIconUrl = (social: FeaturedSocial) => {
+    return theme === "dark" ? social.darkIcon.s3Link : social.lightIcon.s3Link;
+  };
+
+  // Get GitHub and browser icons based on theme
+  const githubSocial = featuredSocials.find((social) =>
+    social.name.toLowerCase().includes("github")
+  );
+
+  const browserSocial = featuredSocials.find(
+    (social) =>
+      social.name.toLowerCase().includes("browser") ||
+      social.name.toLowerCase().includes("web")
+  );
+
   if (loading) {
     return (
       <div className="container mx-auto px-2 sm:px-4 py-8 space-y-12 overflow-x-hidden">
@@ -121,7 +155,7 @@ const Projects = () => {
                 © {new Date().getFullYear()} All rights reserved
               </p>
               <div className="flex gap-4">
-                {featuredSocials.map((social) => (
+                {featuredSocials.map((social: FeaturedSocial) => (
                   <a
                     key={social._id}
                     href={social.link}
@@ -130,9 +164,15 @@ const Projects = () => {
                     className="text-foreground/60 hover:text-foreground transition-colors"
                   >
                     <img
-                      src={social.s3Link}
+                      src={getThemeBasedIconUrl(social)}
                       alt={social.name}
-                      className="w-6 h-6"
+                      className="w-6 h-6 transition-all"
+                      onError={(e) => {
+                        console.error(
+                          `Error loading icon for ${social.name}:`,
+                          e
+                        );
+                      }}
                     />
                   </a>
                 ))}
@@ -159,7 +199,7 @@ const Projects = () => {
                 © {new Date().getFullYear()} All rights reserved
               </p>
               <div className="flex gap-4">
-                {featuredSocials.map((social) => (
+                {featuredSocials.map((social: FeaturedSocial) => (
                   <a
                     key={social._id}
                     href={social.link}
@@ -168,9 +208,15 @@ const Projects = () => {
                     className="text-foreground/60 hover:text-foreground transition-colors"
                   >
                     <img
-                      src={social.s3Link}
+                      src={getThemeBasedIconUrl(social)}
                       alt={social.name}
-                      className="w-6 h-6"
+                      className="w-6 h-6 transition-all"
+                      onError={(e) => {
+                        console.error(
+                          `Error loading icon for ${social.name}:`,
+                          e
+                        );
+                      }}
                     />
                   </a>
                 ))}
@@ -181,16 +227,6 @@ const Projects = () => {
       </div>
     );
   }
-
-  const githubIcon = featuredSocials.find((social) =>
-    social.name.toLowerCase().includes("github")
-  )?.s3Link;
-
-  const browserIcon = featuredSocials.find(
-    (social) =>
-      social.name.toLowerCase().includes("browser") ||
-      social.name.toLowerCase().includes("web")
-  )?.s3Link;
 
   return (
     <div className="container mx-auto px-2 sm:px-4 py-8 space-y-12 overflow-x-hidden">
@@ -348,28 +384,34 @@ const Projects = () => {
                   rel="noopener noreferrer"
                   className="text-foreground/60 hover:text-foreground transition-colors"
                 >
-                  {githubIcon ? (
-                    <img src={githubIcon} alt="GitHub" className="w-6 h-6" />
+                  {githubSocial ? (
+                    <img
+                      src={getThemeBasedIconUrl(githubSocial)}
+                      alt="GitHub"
+                      className="w-6 h-6 transition-all"
+                    />
                   ) : (
                     <FaGithub className="w-6 h-6" />
                   )}
                 </a>
-                <a
-                  href={project.liveWebLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-foreground/60 hover:text-foreground transition-colors"
-                >
-                  {browserIcon ? (
-                    <img
-                      src={browserIcon}
-                      alt="Live Website"
-                      className="w-6 h-6"
-                    />
-                  ) : (
-                    <FaGlobe className="w-6 h-6" />
-                  )}
-                </a>
+                {project.liveWebLink && (
+                  <a
+                    href={project.liveWebLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-foreground/60 hover:text-foreground transition-colors"
+                  >
+                    {browserSocial ? (
+                      <img
+                        src={getThemeBasedIconUrl(browserSocial)}
+                        alt="Live Website"
+                        className="w-6 h-6 transition-all"
+                      />
+                    ) : (
+                      <FaGlobe className="w-6 h-6" />
+                    )}
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -384,7 +426,7 @@ const Projects = () => {
               © {new Date().getFullYear()} All rights reserved
             </p>
             <div className="flex gap-4">
-              {featuredSocials.map((social) => (
+              {featuredSocials.map((social: FeaturedSocial) => (
                 <a
                   key={social._id}
                   href={social.link}
@@ -393,9 +435,15 @@ const Projects = () => {
                   className="text-foreground/60 hover:text-foreground transition-colors"
                 >
                   <img
-                    src={social.s3Link}
+                    src={getThemeBasedIconUrl(social)}
                     alt={social.name}
-                    className="w-6 h-6"
+                    className="w-6 h-6 transition-all"
+                    onError={(e) => {
+                      console.error(
+                        `Error loading icon for ${social.name}:`,
+                        e
+                      );
+                    }}
                   />
                 </a>
               ))}

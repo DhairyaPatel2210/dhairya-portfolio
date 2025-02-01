@@ -17,6 +17,7 @@ import { FaDownload, FaGithub, FaGlobe } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import { useTheme } from "@/components/theme-provider";
 
 const formatDate = (date: string | null) => {
   if (!date) return "Present";
@@ -69,8 +70,17 @@ interface FeaturedSocial {
   _id: string;
   name: string;
   link: string;
-  s3Link: string;
-  s3Key?: string;
+  lightIcon: {
+    s3Link: string;
+    s3Key: string;
+  };
+  darkIcon: {
+    s3Link: string;
+    s3Key: string;
+  };
+  user: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface PortfolioData {
@@ -104,6 +114,8 @@ interface PortfolioData {
 const Home = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const portfolioData = useSelector((state: RootState) => state.portfolio);
+  const { theme } = useTheme();
+
   const {
     loading: portfolioLoading,
     error,
@@ -137,6 +149,8 @@ const Home = () => {
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+    const theme = useTheme();
+
     // Calculate years and remaining months more accurately
     const years = Math.floor(diffDays / 365);
     const remainingDays = diffDays % 365;
@@ -168,6 +182,11 @@ const Home = () => {
       }
     }
   }, [seo.image.s3Url]);
+
+  // Helper function to get theme-based icon URL
+  const getThemeBasedIconUrl = (social: FeaturedSocial) => {
+    return theme === "dark" ? social.darkIcon.s3Link : social.lightIcon.s3Link;
+  };
 
   if (portfolioLoading) {
     return (
@@ -332,7 +351,7 @@ const Home = () => {
                   className="text-foreground/60 hover:text-foreground transition-colors"
                 >
                   <img
-                    src={social.s3Link}
+                    src={getThemeBasedIconUrl(social)}
                     alt={social.name}
                     className="w-6 h-6"
                   />
@@ -525,11 +544,11 @@ const Home = () => {
                             social.name.toLowerCase().includes("github")
                           ) ? (
                             <img
-                              src={
+                              src={getThemeBasedIconUrl(
                                 featuredSocials.find((social) =>
                                   social.name.toLowerCase().includes("github")
-                                )?.s3Link
-                              }
+                                )!
+                              )}
                               alt="GitHub"
                               className="w-6 h-6"
                             />
@@ -550,15 +569,15 @@ const Home = () => {
                                 social.name.toLowerCase().includes("web")
                             ) ? (
                               <img
-                                src={
+                                src={getThemeBasedIconUrl(
                                   featuredSocials.find(
                                     (social) =>
                                       social.name
                                         .toLowerCase()
                                         .includes("browser") ||
                                       social.name.toLowerCase().includes("web")
-                                  )?.s3Link
-                                }
+                                  )!
+                                )}
                                 alt="Live Website"
                                 className="w-6 h-6"
                               />
@@ -595,7 +614,7 @@ const Home = () => {
                     className="text-foreground/60 hover:text-foreground transition-colors"
                   >
                     <img
-                      src={social.s3Link}
+                      src={getThemeBasedIconUrl(social)}
                       alt={social.name}
                       className="w-6 h-6"
                     />
