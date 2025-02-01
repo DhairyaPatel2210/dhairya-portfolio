@@ -1,4 +1,5 @@
 import axios from "axios";
+import { store } from "@/store/store";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -18,8 +19,8 @@ const api = axios.create({
 // Add request interceptor to handle errors consistently
 api.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
-    const token = localStorage.getItem("token");
+    // Get token from Redux store
+    const token = store.getState().auth.token;
 
     // If token exists, add it to the Authorization header
     if (token) {
@@ -61,7 +62,7 @@ api.interceptors.response.use(
 
       // If we get a 401 Unauthorized error, clear the token and auth state
       if (error.response?.status === 401) {
-        localStorage.removeItem("token");
+        store.dispatch({ type: "auth/logout" });
       }
     }
     return Promise.reject(error);

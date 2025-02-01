@@ -54,16 +54,6 @@ function AppContent() {
     fetchData();
   }, [dispatch, isAuthenticated]);
 
-  // Debug logs
-  useEffect(() => {
-    console.log("Auth State:", {
-      isAuthenticated,
-      authLoading,
-      authError,
-      authAttempted,
-    });
-  }, [isAuthenticated, authLoading, authError, authAttempted]);
-
   return (
     <Router>
       <div className="min-h-screen bg-background text-foreground overflow-x-hidden">

@@ -47,8 +47,6 @@ export const authenticateWithApiKey = createAsyncThunk(
       }
 
       // Store token in localStorage
-      localStorage.setItem("token", response.data.token);
-
       return response.data;
     } catch (error: any) {
       console.error("Authentication error:", error);
@@ -76,7 +74,6 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.token = null;
       state.user = null;
-      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {

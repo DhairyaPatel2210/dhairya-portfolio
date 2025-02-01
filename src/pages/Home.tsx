@@ -149,8 +149,6 @@ const Home = () => {
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    const theme = useTheme();
-
     // Calculate years and remaining months more accurately
     const years = Math.floor(diffDays / 365);
     const remainingDays = diffDays % 365;
