@@ -55,6 +55,7 @@ const Contact = () => {
     message: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [visitorLocation, setVisitorLocation] = useState<string>("");
 
   // Helper function to get theme-based icon URL
@@ -101,20 +102,20 @@ const Contact = () => {
         }
         const { ip } = await ipResponse.json();
 
-        // Then, get location data using ip-api.com (free tier)
+        // Then, get location data using freeipapi.com (free tier)
         const locationResponse = await fetch(
-          `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city`
+          `https://freeipapi.com/api/json/${ip}`
         );
         if (!locationResponse.ok) {
           throw new Error("Failed to get location data");
         }
 
         const data = await locationResponse.json();
-        if (data.status === "fail") {
-          throw new Error(data.message || "Failed to get location data");
+        if (!data.countryName) {
+          throw new Error("Failed to get location data");
         }
 
-        const locationString = `${data.city}, ${data.regionName}, ${data.country}`;
+        const locationString = `${data.cityName}, ${data.regionName}, ${data.countryName}`;
 
         // Cache the result
         localStorage.setItem(
@@ -154,7 +155,7 @@ const Contact = () => {
     }
 
     try {
-      setLoading(true);
+      setIsSending(true);
       await api.post("/api/contact/send-message", {
         ...formData,
         // Only include location if we have it
@@ -165,7 +166,7 @@ const Contact = () => {
     } catch (error) {
       toast.error("Failed to send message. Please try again.");
     } finally {
-      setLoading(false);
+      setIsSending(false);
     }
   };
 
@@ -282,8 +283,8 @@ const Contact = () => {
                       className="min-h-[150px]"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Sending..." : "Send Message"}
+                  <Button type="submit" className="w-full" disabled={isSending}>
+                    {isSending ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </div>

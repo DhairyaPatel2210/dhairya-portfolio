@@ -321,17 +321,7 @@ const Home = () => {
         {/* Status Section */}
         <section className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="prose dark:prose-invert mx-auto">
-            <ReactMarkdown>
-              {expandedStatus ? status : truncateText(status, 60)}
-            </ReactMarkdown>
-            {status.length > 60 && (
-              <button
-                onClick={() => setExpandedStatus(!expandedStatus)}
-                className="text-blue-500 hover:underline mt-2"
-              >
-                {expandedStatus ? "Show less" : "Read more"}
-              </button>
-            )}
+            <ReactMarkdown>{status}</ReactMarkdown>
           </div>
           <div className="flex justify-center gap-4 mt-4">
             {featuredSocials

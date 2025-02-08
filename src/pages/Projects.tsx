@@ -101,20 +101,28 @@ const Projects = () => {
     dispatch(setSelectedProjectTypes(newSelection));
   };
 
-  const filteredProjects = projects.filter((project: Project) => {
-    const matchesLanguages =
-      selectedLanguages.length === 0 ||
-      project.programmingLanguages.some((lang: string) =>
-        selectedLanguages.includes(lang)
-      );
-    const matchesTypes =
-      selectedProjectTypes.length === 0 ||
-      project.projectType.some((type: string) =>
-        selectedProjectTypes.includes(type)
-      );
-    return matchesLanguages && matchesTypes;
-  });
-
+  const filteredProjects = projects
+    .filter((project: Project) => {
+      const matchesLanguages =
+        selectedLanguages.length === 0 ||
+        project.programmingLanguages.some((lang: string) =>
+          selectedLanguages.includes(lang)
+        );
+      const matchesTypes =
+        selectedProjectTypes.length === 0 ||
+        project.projectType.some((type: string) =>
+          selectedProjectTypes.includes(type)
+        );
+      return matchesLanguages && matchesTypes;
+    })
+    .sort(function (a, b) {
+      var keyA = new Date(a.endDate),
+        keyB = new Date(b.endDate);
+      // Compare the 2 dates
+      if (keyA < keyB) return 1;
+      if (keyA > keyB) return -1;
+      return 0;
+    });
   const truncateText = (text: string, limit: number) => {
     if (text.length <= limit) return text;
     return text.slice(0, limit) + "...";
@@ -239,7 +247,7 @@ const Projects = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <FaFilter className="w-4 h-4" />
-              Languages
+              Skills
               {selectedLanguages.length > 0 && (
                 <Badge variant="secondary" className="ml-2">
                   {selectedLanguages.length}
@@ -247,8 +255,11 @@ const Projects = () => {
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuLabel>Programming Languages</DropdownMenuLabel>
+          <DropdownMenuContent
+            align="start"
+            className="w-56 max-h-[300px] overflow-y-auto"
+          >
+            <DropdownMenuLabel>Skills</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {availableLanguages.map((language: string) => (
               <DropdownMenuItem
@@ -281,7 +292,10 @@ const Projects = () => {
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuContent
+            align="start"
+            className="w-56 max-h-[300px] overflow-y-auto"
+          >
             <DropdownMenuLabel>Project Types</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {availableProjectTypes.map((type: string) => (
